@@ -55,6 +55,7 @@ const SETS=[
  {k:'fridge-retro',n:'奶油粉复古冰箱'},
  {k:'cola3',n:'可口可乐起雾冰柜'}
 ];
+const V='1125c'; // bump when images change
 const OUT=[1398,2034], INN=[2670,1878];
 let cur=SETS[0].k, open=false, empty=false, icons=false, clock=true;
 try{const s=JSON.parse(localStorage.getItem('duoPrev')||'{}'); if(SETS.some(x=>x.k===s.cur))cur=s.cur}catch(e){}
@@ -63,7 +64,7 @@ const setsEl=$('sets');
 SETS.forEach(s=>{const b=document.createElement('button');b.className='chip';b.textContent=s.n;b.onclick=()=>{cur=s.k;save();render(false)};b.dataset.k=s.k;setsEl.appendChild(b)});
 function save(){try{localStorage.setItem('duoPrev',JSON.stringify({cur}))}catch(e){}}
 // preload
-SETS.forEach(s=>['closed','open','empty'].forEach(v=>{const i=new Image();i.src=`img/${s.k}-${v}.jpg`}));
+SETS.forEach(s=>['closed','open','empty'].forEach(v=>{const i=new Image();i.src=`img/${s.k}-${v}.jpg?v=${V}`}));
 function size(){
   const maxW=Math.min(innerWidth-32,940), maxH=Math.min(innerHeight*0.68,620);
   const [w,h]=open?INN:OUT; const r=w/h;
@@ -79,7 +80,7 @@ function render(animate){
   const [W,H]=size(); dev.style.width=W+'px'; dev.style.height=H+'px';
   const bz=Math.max(5,Math.round(W*(open?0.011:0.02))), r=Math.round((open?H:W)*0.085);
   dev.style.setProperty('--bz',bz+'px'); dev.style.setProperty('--r',r+'px');
-  const src=open?`img/${cur}-${empty?'empty':'open'}.jpg`:`img/${cur}-closed.jpg`;
+  const src=open?`img/${cur}-${empty?'empty':'open'}.jpg?v=${V}`:`img/${cur}-closed.jpg?v=${V}`;
   const sw=W-2*bz, sh=H-2*bz, unit=open?sw/2:sw;
   const ts=Math.round(unit*0.2), ds=Math.round(unit*0.052);
   const t=now();
@@ -89,7 +90,7 @@ function render(animate){
   if(clock) html+=`<div class="lock" style="${open?'left:0;width:50%':'left:0;right:0'}"><div class="d" style="font-size:${ds}px">${t.d}</div><div class="t" style="font-size:${ts}px">${t.t}</div></div>`;
   if(icons){const cols=open?8:4, rows=open?3:4, ic=Math.round(unit*0.15), pad=open?0.06:0.1;
     html+=`<div class="icons" style="left:${pad*100}%;right:${pad*100}%;top:${open?40:42}%;grid-template-columns:repeat(${cols},${ic}px);justify-content:space-between;row-gap:${Math.round(ic*0.45)}px">${'<i></i>'.repeat(cols*rows)}</div>`}
-  if(open&&animate){html+=`<div class="flap" id="flap" style="transform:rotateY(0deg)"><img src="img/${cur}-closed.jpg" style="width:100%"></div>`}
+  if(open&&animate){html+=`<div class="flap" id="flap" style="transform:rotateY(0deg)"><img src="img/${cur}-closed.jpg?v=${V}" style="width:100%"></div>`}
   html+=`</div></div>`;
   dev.innerHTML=html;
   if(open&&animate){const f=$('flap');requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.transform='rotateY(-180deg)'}));setTimeout(()=>f.remove(),760)}
